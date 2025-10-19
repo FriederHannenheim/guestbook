@@ -20,6 +20,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
 import java.time.LocalDateTime;
+import java.util.regex.Pattern;
 
 import org.springframework.util.Assert;
 
@@ -35,8 +36,9 @@ import org.springframework.util.Assert;
 class GuestbookEntry {
 
 	private @Id @GeneratedValue Long id;
-	private final String name, text;
+	private final String name, text, email;
 	private final LocalDateTime date;
+	private static Pattern email_pattern = Pattern.compile("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
 
 	/**
 	 * Creates a new {@link GuestbookEntry} for the given name and text.
@@ -44,13 +46,16 @@ class GuestbookEntry {
 	 * @param name must not be {@literal null} or empty
 	 * @param text must not be {@literal null} or empty
 	 */
-	public GuestbookEntry(String name, String text) {
+	public GuestbookEntry(String name, String text, String email) {
 
 		Assert.hasText(name, "Name must not be null or empty!");
 		Assert.hasText(text, "Text must not be null or empty!");
+		Assert.hasText(email, "Email must not be null or empty!");
+		Assert.isTrue(email_pattern.matcher(email).find(), "Email does not look valid. (It may still be valid because there are a lot of weird emails out there but we only allow emails that look normal)");
 
 		this.name = name;
 		this.text = text;
+		this.email = email;
 		this.date = LocalDateTime.now();
 	}
 
@@ -58,6 +63,7 @@ class GuestbookEntry {
 	private GuestbookEntry() {
 		this.name = null;
 		this.text = null;
+		this.email = null;
 		this.date = null;
 	}
 
@@ -75,5 +81,9 @@ class GuestbookEntry {
 
 	public String getText() {
 		return text;
+	}
+
+	public String getEmail() {
+		return email;
 	}
 }
